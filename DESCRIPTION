@@ -1,0 +1,17 @@
+Package: diffexpR
+Type: Package
+Title: Differential expression analysis in R
+Version: 0.1.0
+Authors@R: 
+  person(given = "Erjie", 
+         family = "Zhao", 
+         email = "2055469819@qq.com",
+         role = c("aut", "cre"))
+Maintainer: Erjie Zhao <2055469819@qq.com>
+Description: A package An R package that integrated a variety of commonly
+  used differential expression analysis methods.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
