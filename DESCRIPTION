@@ -20,4 +20,5 @@ Depends:
 Imports: 
     edgeR,
     statmod,
-    limma
+    limma,
+    DESeq2
