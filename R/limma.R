@@ -15,20 +15,18 @@
 #' @param groups expressions, or character strings which can be parsed to expressions,
 #' specifying contrasts, it corresponds to \code{\link[limma]{makeContrasts}}.
 #' @return A dataframe with a row for the number top genes and the following columns:
-#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast
+#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast}
 #'   \item{AveExpr}{average log2-expression for the probe over all arrays and channels, same as Amean in the \code{MarrayLM} object}
 #'   \item{t}{moderated t-statistic (omitted for \code{topTableF})}
 #'   \item{P.Value}{raw p-value}
 #'   \item{adj.P.Value}{adjusted p-value or q-value}
 #'   \item{B}{log-odds that the gene is differentially expressed (omitted for \code{topTreat})}
-#'
 #' @import limma
+#' @importFrom stats na.omit model.matrix
 #' @author Erjie Zhao <2055469819@qq.com>
-#'
 #' @examples
 #' data(eset)
 #' res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, groups = c("brain-liver"))
-#'
 #' @export
 
 diff_limma_array <- function(array_mat, label_list, groups) {
@@ -42,7 +40,7 @@ diff_limma_array <- function(array_mat, label_list, groups) {
   rownames(design) <- colnames(array_mat)
 
   ## Construct Matrix of Custom Contrasts
-  contrast_matrix <- makeContrasts(groups, levels = design)
+  contrast_matrix <- makeContrasts(contrasts = groups, levels = design)
 
   ## differential analysis
   fit <- lmFit(array_mat, design)
@@ -58,7 +56,7 @@ diff_limma_array <- function(array_mat, label_list, groups) {
 #' @title Do differential expression analysis on read count data using limma
 #' @description Do differential expression analysis using \code{limma} package,
 #' this is for the read count data in RNA-seq.
-#' @usage diff_limma_count(expr_mat, label_list, groups, methods = c("voom", "limma-trend"))
+#' @usage diff_limma_count(count_mat, label_list, groups, methods = c("voom", "limma-trend"))
 #' @param count_mat A matrix-like data object containing the read count data, with rows corresponding to genes and columns to samples.
 #' @param label_list a dataframe contain samples in first column and groups information
 #' in second column in the form of factors.
@@ -69,7 +67,7 @@ diff_limma_array <- function(array_mat, label_list, groups) {
 #' and most robust approach to differential exis when the sequencing depth is reasonably
 #' consistent across the RNA samples.
 #' @return A dataframe with a row for the number top genes and the following columns:
-#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast
+#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast}
 #'   \item{AveExpr}{average log2-expression for the probe over all arrays and channels, same as Amean in the \code{MarrayLM} object}
 #'   \item{t}{moderated t-statistic (omitted for \code{topTableF})}
 #'   \item{P.Value}{raw p-value}
@@ -78,12 +76,14 @@ diff_limma_array <- function(array_mat, label_list, groups) {
 #'
 #' @import limma
 #' @import edgeR
+#' @importFrom stats na.omit model.matrix
 #'
 #' @author Erjie Zhao <2055469819@qq.com>
 #'
 #' @examples
 #' data(OSCC)
-#' res <- diff_limma_count(count_mat = OSCC$count, label_list = OSCC$group, groups = c("normal-tumor"), methods = "voom")
+#' res <- diff_limma_count(count_mat = OSCC$count, label_list = OSCC$group,
+#'                         groups = c("normal-tumor"), methods = "voom")
 #'
 #' @export
 #'
@@ -134,13 +134,13 @@ diff_limma_count <- function(count_mat, label_list, groups, methods = c("voom", 
 #' @param expr_mat A matrix-like data object containing log-ratios or
 #' log-expression values for normalized RNA-seq data, with rows corresponding
 #' to genes and columns to samples.
-#' @param a dataframe contain samples in first column and groups information
+#' @param label_list a dataframe contain samples in first column and groups information
 #' in second column in the form of factors.
 #' @param groups expressions, or character strings which can be parsed to expressions,
 #' specifying contrasts, it corresponds to \code{\link[limma]{makeContrasts}}.
 #'
 #' @return A dataframe with a row for the number top genes and the following columns:
-#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast
+#'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast}
 #'   \item{AveExpr}{average log2-expression for the probe over all arrays and channels, same as Amean in the \code{MarrayLM} object}
 #'   \item{t}{moderated t-statistic (omitted for \code{topTableF})}
 #'   \item{P.Value}{raw p-value}
@@ -148,11 +148,13 @@ diff_limma_count <- function(count_mat, label_list, groups, methods = c("voom", 
 #'   \item{B}{log-odds that the gene is differentially expressed (omitted for \code{topTreat})}
 #'
 #' @import limma
+#' @importFrom stats na.omit quantile model.matrix
 #' @author Erjie Zhao <2055469819@qq.com>
 #'
 #' @examples
 #' data(OSCC)
-#' res <- diff_limma_normalize(expr_mat = OSCC$rpkm, label_list = OSCC$group, groups = c("normal-tumor"))
+#' res <- diff_limma_normalize(expr_mat = OSCC$rpkm, label_list = OSCC$group,
+#'                             groups = c("normal-tumor"))
 #'
 #' @export
 #'
@@ -176,7 +178,7 @@ diff_limma_normalize <- function(expr_mat, label_list, groups) {
   rownames(design) <- colnames(expr_mat)
 
   ## Construct Matrix of Custom Contrasts
-  contrast_matrix <- makeContrasts(groups, levels = design)
+  contrast_matrix <- makeContrasts(contrasts = groups, levels = design)
 
   ## differential analysis
   fit <- lmFit(expr_mat, design)
