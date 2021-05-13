@@ -156,7 +156,6 @@ diff_limma_count <- function(count_mat, label_list, groups, methods = c("voom", 
 #'
 #' @export
 #'
-#' the reference：https://support.bioconductor.org/p/56275/#56299
 diff_limma_normalize <- function(expr_mat, label_list, groups) {
   ## check log2
   logs <- check_log2(expr_mat)
@@ -182,6 +181,8 @@ diff_limma_normalize <- function(expr_mat, label_list, groups) {
   ## differential analysis
   fit <- lmFit(expr_mat, design)
   fit2 <- contrasts.fit(fit, contrast_matrix)
+
+  ## the reference：https://support.bioconductor.org/p/56275/#56299
   fit2 <- eBayes(fit2, robust = TRUE, trend = TRUE)
   tempoutput <- topTable(fit2, coef = 1, number=Inf)
   limma_deg <- na.omit(tempoutput)
