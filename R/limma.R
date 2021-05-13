@@ -97,6 +97,9 @@ diff_limma_count <- function(count_mat, label_list, groups, methods = c("voom", 
   colnames(design) <- levels(factor(group_list))
   rownames(design) <- colnames(count_mat)
 
+  ## Construct Matrix of Custom Contrasts
+  contrast_matrix <- makeContrasts(contrasts = groups, levels = design)
+
   ## DGEList Constructor
   dgelist <- DGEList(counts = count_mat, group = factor(group_list))
 
@@ -110,13 +113,15 @@ diff_limma_count <- function(count_mat, label_list, groups, methods = c("voom", 
   if (method == "limma-trend") {
     logCPM <- cpm(dgelist, log = TRUE, prior.count = 3)
     fit <- lmFit(logCPM, design)
+    fit <- contrasts.fit(fit, contrast_matrix)
     fit <- eBayes(fit, trend = TRUE)
-    tempoutput <- topTable(fit, coef  =ncol(design), number = Inf)
+    tempoutput <- topTable(fit, coef = 1, number = Inf)
   } else if (method == "voom") {
     v <- voom(dgelist, design)
     fit <- lmFit(v, design)
+    fit <- contrasts.fit(fit, contrast_matrix)
     fit <- eBayes(fit)
-    tempoutput <- topTable(fit, coef = ncol(design), number = Inf)
+    tempoutput <- topTable(fit, coef = 1, number = Inf)
   }
 
   ## get results
