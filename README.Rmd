@@ -1,0 +1,76 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# diffexpR
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of `diffexpR` is to easy do differential expression analysis.
+
+## Installation
+
+You can install the released version of diffexpR from [Github](https://github.com/Moonerss/diffexpR) with:
+
+``` {r eval=FALSE}
+install.packages('remotes')
+remotes::install_github('Moonerss/diffexpR')
+```
+
+## Usage
+
+We can do differential expression analysis underline the methods apply by `limma`, `DESeq2`, and `edgeR`.
+
+```{r example}
+library(diffexpR)
+
+## add data
+data("OSCC")
+data("eset")
+
+## do differential expression analysis in array data
+array_res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, groups = 'brain-liver')
+head(array_res)
+
+## do differential expression analysis in count data
+limma_count_res <- diff_limma_count(count_mat = OSCC$count, label_list = OSCC$group, groups = 'tumor-normal', methods = 'voom')
+head(limma_count_res)
+
+deseq2_count_res <- diff_deseq2_count(count_mat = OSCC$count, label_list = OSCC$group, groups = c('condition', 'tumor', 'normal'))
+head(deseq2_count_res)
+
+edger_count_res <- diff_edger_count(count_mat = OSCC$count, label_list = OSCC$group, groups = 'tumor-normal')
+head(edger_count_res)
+
+## do differential expression analysis in normalized rna-seq data
+limma_normalize_res <- diff_limma_normalize(expr_mat = OSCC$rpkm, label_list = OSCC$group, groups = 'tumor-normal')
+head(limma_normalize_res)
+```
+
+Compare the result of three different methods:
+
+```{r compare}
+library(dplyr)
+library(ggVennDiagram)
+
+edger_res <- rownames(filter(edger_count_res, FDR < 0.05, abs(logFC) > 1))
+deseq2_res <- rownames(filter(deseq2_count_res, padj < 0.05, abs(log2FoldChange) > 1))
+limma_res <- rownames(filter(limma_count_res, adj.P.Val < 0.05, abs(logFC) > 1))
+
+## veen 
+x <- list(limma_res = limma_res, edger_res = edger_res, deseq2_res = deseq2_res)
+ggVennDiagram(x)
+```
+
