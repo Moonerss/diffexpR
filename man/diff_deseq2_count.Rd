@@ -4,7 +4,7 @@
 \alias{diff_deseq2_count}
 \title{Do differential expression analysis on read count data using \code{DESeq2}}
 \usage{
-diff_deseq2_count(count_mat, label_list, groups)
+diff_deseq2_count(count_mat, label_list, ref.groups = NULL)
 }
 \arguments{
 \item{count_mat}{A matrix-like data object containing the read count data, with rows corresponding to genes and columns to samples.}
@@ -12,10 +12,11 @@ diff_deseq2_count(count_mat, label_list, groups)
 \item{label_list}{a dataframe contain samples in first column and groups information
 in second column in the form of factors.}
 
-\item{groups}{the same as \code{contrast} argument in \code{\link[DESeq2]{results}}, as the name of a factor in the design formula is \code{condition}}
+\item{ref.groups}{a character string specifying the reference group. If specified, for a given grouping variable, each of the group levels will be compared to the reference group (i.e. control group).}
 }
 \value{
 A dataframe with a row for the number top genes and the following columns:
+\item{Gene}{the name of genes}
 \item{baseMean}{}
 \item{log2FoldChange}{log2-fold change of expression between conditions being tested.}
 \item{lfcSE}{the standard error of the \code{log2FoldChange}}
@@ -30,7 +31,7 @@ this is for the read count data in RNA-seq.
 \examples{
 data(OSCC)
 res <- diff_deseq2_count(count_mat = OSCC$count, label_list = OSCC$group,
-                         groups = c("condition", "tumor", "normal"))
+                         ref.groups = "normal")
 }
 \author{
 Erjie Zhao \href{mailto:2055469819@qq.com}{2055469819@qq.com}

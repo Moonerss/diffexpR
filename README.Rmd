@@ -48,7 +48,7 @@ head(array_res)
 limma_count_res <- diff_limma_count(count_mat = OSCC$count, label_list = OSCC$group, groups = 'tumor-normal', methods = 'voom')
 head(limma_count_res)
 
-deseq2_count_res <- diff_deseq2_count(count_mat = OSCC$count, label_list = OSCC$group, groups = c('condition', 'tumor', 'normal'))
+deseq2_count_res <- diff_deseq2_count(count_mat = OSCC$count, label_list = OSCC$group, ref.groups = 'normal')
 head(deseq2_count_res)
 
 edger_count_res <- diff_edger_count(count_mat = OSCC$count, label_list = OSCC$group, groups = 'tumor-normal')
