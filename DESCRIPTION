@@ -14,11 +14,13 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 Imports: 
     edgeR,
-    statmod,
     limma,
-    DESeq2
+    DESeq2,
+    cli,
+    tibble,
+    magrittr
