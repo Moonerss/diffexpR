@@ -4,7 +4,7 @@
 \alias{diff_limma_array}
 \title{Do differential expression analysis on array data using limma}
 \usage{
-diff_limma_array(array_mat, label_list, groups)
+diff_limma_array(array_mat, label_list, ref.groups = NULL)
 }
 \arguments{
 \item{array_mat}{A matrix-like data object containing log-ratios or log-expression
@@ -13,11 +13,11 @@ values for a series of arrays, with rows corresponding to genes and columns to s
 \item{label_list}{a dataframe contain samples in first column and groups information
 in second column in the form of factors.}
 
-\item{groups}{expressions, or character strings which can be parsed to expressions,
-specifying contrasts, it corresponds to \code{\link[limma]{makeContrasts}}.}
+\item{ref.groups}{a character string specifying the reference group. If specified, for a given grouping variable, each of the group levels will be compared to the reference group (i.e. control group).}
 }
 \value{
 A dataframe with a row for the number top genes and the following columns:
+\item{Gene}{the name of genes}
 \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast}
 \item{AveExpr}{average log2-expression for the probe over all arrays and channels, same as Amean in the \code{MarrayLM} object}
 \item{t}{moderated t-statistic (omitted for \code{topTableF})}
@@ -31,7 +31,7 @@ this is for the microarray data.
 }
 \examples{
 data(eset)
-res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, groups = c("brain-liver"))
+res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, ref.groups = "liver")
 }
 \author{
 Erjie Zhao \href{mailto:2055469819@qq.com}{2055469819@qq.com}

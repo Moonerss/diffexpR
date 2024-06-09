@@ -7,14 +7,13 @@
 #' @title Do differential expression analysis on array data using limma
 #' @description Do differential expression analysis using \code{limma} package,
 #' this is for the microarray data.
-#' @usage diff_limma_array(array_mat, label_list, groups)
 #' @param array_mat A matrix-like data object containing log-ratios or log-expression
 #' values for a series of arrays, with rows corresponding to genes and columns to samples.
 #' @param label_list a dataframe contain samples in first column and groups information
 #' in second column in the form of factors.
-#' @param groups expressions, or character strings which can be parsed to expressions,
-#' specifying contrasts, it corresponds to \code{\link[limma]{makeContrasts}}.
+#' @param ref.groups a character string specifying the reference group. If specified, for a given grouping variable, each of the group levels will be compared to the reference group (i.e. control group).
 #' @return A dataframe with a row for the number top genes and the following columns:
+#'   \item{Gene}{the name of genes}
 #'   \item{logFC}{estimate of the log2-fold-change corresponding to the effect or contrast}
 #'   \item{AveExpr}{average log2-expression for the probe over all arrays and channels, same as Amean in the \code{MarrayLM} object}
 #'   \item{t}{moderated t-statistic (omitted for \code{topTableF})}
@@ -23,23 +22,38 @@
 #'   \item{B}{log-odds that the gene is differentially expressed (omitted for \code{topTreat})}
 #' @import limma
 #' @importFrom stats na.omit model.matrix
+#' @importFrom cli cli_alert_warning cli_alert_info
 #' @author Erjie Zhao <2055469819@qq.com>
 #' @examples
 #' data(eset)
-#' res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, groups = c("brain-liver"))
+#' res <- diff_limma_array(array_mat = eset$array, label_list = eset$group, ref.groups = "liver")
 #' @export
 
-diff_limma_array <- function(array_mat, label_list, groups) {
+diff_limma_array <- function(array_mat, label_list, ref.groups = NULL) {
 
   ## extract group
   group_list <- label_list[match(label_list[,1], colnames(array_mat)), 2]
 
+  if (is.character(group_list)) {
+    cli::cli_alert_warning('Set group information into factors')
+    group_list <- as.factor(group_list)
+  }
+
+  condition_level <- levels(group_list)
+  cli::cli_alert_info('factor level: {.val {paste(condition_level, collapse = \' \')}}')
+
+  if (!is.element(ref.groups, condition_level)) {
+    cli::cli_abort(c('x' = '{.var ref.groups} must in {.var {condition_level}}'))
+  }
   ## Construct Design Matrices
-  design <- model.matrix(~ 0 + factor(group_list))
-  colnames(design) <- levels(factor(group_list))
+  design <- model.matrix(~ 0 + group_list)
+  colnames(design) <- levels(group_list)
   rownames(design) <- colnames(array_mat)
 
   ## Construct Matrix of Custom Contrasts
+  vs_group <- setdiff(condition_level, ref.groups)
+  groups <- paste(vs_group, ref.groups, sep = '-')
+  cli::cli_alert_info('compare condition: {.val {vs_group}} vs {.val {ref.groups}}')
   contrast_matrix <- makeContrasts(contrasts = groups, levels = design)
 
   ## differential analysis
@@ -48,6 +62,9 @@ diff_limma_array <- function(array_mat, label_list, groups) {
   fit2 <- eBayes(fit2)
   tempoutput <- topTable(fit2, coef = 1, number = Inf)
   limma_deg <- na.omit(tempoutput)
+
+  limma_deg <- limma_deg %>%
+    tibble::rownames_to_column(var = 'Gene')
 
   return(limma_deg)
 }
